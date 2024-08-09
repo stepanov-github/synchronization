@@ -14,7 +14,7 @@ public class Main {
         final ExecutorService threadPool = Executors.newFixedThreadPool(THREADS);
 
 
-        Thread thread =  new Thread(() -> {
+        Thread thread = new Thread(() -> {
             System.out.printf("%s started... \n", Thread.currentThread().getName());
             synchronized (sizeToFreq) {
                 while (!Thread.interrupted()) {
@@ -59,7 +59,6 @@ public class Main {
         threadPool.shutdown();
         threadPool.awaitTermination(100, TimeUnit.SECONDS);
 //        thread.join();
-
 
 
         int max = 0;
