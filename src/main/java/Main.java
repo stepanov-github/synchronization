@@ -13,6 +13,28 @@ public class Main {
 
         final ExecutorService threadPool = Executors.newFixedThreadPool(THREADS);
 
+
+        Thread thread =  new Thread(() -> {
+            System.out.printf("%s started... \n", Thread.currentThread().getName());
+            synchronized (sizeToFreq) {
+                while (!Thread.interrupted()) {
+                    try {
+                        sizeToFreq.wait();
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                    int max = 0;
+                    for (Map.Entry<Integer, Integer> entry : sizeToFreq.entrySet()) {
+                        max = Math.max(max, entry.getValue());
+                    }
+                    System.out.println("Текущий максимум: " + max);
+                }
+
+            }
+            System.out.printf("%s finished... \n", Thread.currentThread().getName());
+        });
+        thread.start();
+
         Runnable logic = null;
         for (int j = 0; j < THREADS; j++) {
             logic = () -> {
@@ -29,12 +51,15 @@ public class Main {
                     } else {
                         sizeToFreq.put(r, 1);
                     }
+                    sizeToFreq.notify();
                 }
             };
             threadPool.submit(logic);
         }
         threadPool.shutdown();
         threadPool.awaitTermination(100, TimeUnit.SECONDS);
+//        thread.join();
+
 
 
         int max = 0;
@@ -54,6 +79,7 @@ public class Main {
         }
 
 
+        thread.interrupt();
     }
 
     public static String generateRoute(String letters, int length) {
